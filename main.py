@@ -62,7 +62,7 @@ def subscribed(client, userdata, mid, granted_qos):
 def recv_message(client, userdata, message):
     print("Received: ", message.payload.decode("utf-8"))
     temp_data = {'value': True}
-    cmd = 1
+    cmd = -1
     #TODO: Update the cmd to control 2 devices
     try:
         jsonobj = json.loads(message.payload)
@@ -70,16 +70,16 @@ def recv_message(client, userdata, message):
             temp_data['valueLED'] = jsonobj['params']
             client.publish('v1/devices/me/attributes', json.dumps(temp_data), 1)
             if temp_data['valueLED']:
-                cmd = 3
+                cmd = 1
             else:
-                cmd = 2
+                cmd = 0
         if jsonobj['method'] == "setFAN":
             temp_data['valueFAN'] = jsonobj['params']
             client.publish('v1/devices/me/attributes', json.dumps(temp_data), 1)
             if temp_data['valueFAN']:
-                cmd = 5
+                cmd = 3
             else:
-                cmd = 4
+                cmd = 2
     except:
         pass
 
