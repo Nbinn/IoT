@@ -8,8 +8,7 @@ namespace Dashboard
 {
     public class Manager : MonoBehaviour
     {
-        [SerializeField]
-        private Text Title;
+
         [SerializeField]
         private CanvasGroup Layer1;
         [SerializeField]
