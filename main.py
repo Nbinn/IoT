@@ -4,7 +4,8 @@ import time
 import json
 import serial.tools.list_ports
 import winrt.windows.devices.geolocation as wdg, asyncio
-
+# import AI
+# import numpy
 async def getCoords():
     loc = wdg.Geolocator()
     pos = await loc.get_geoposition_async()
@@ -15,10 +16,23 @@ BROKER_ADDRESS = "demo.thingsboard.io"
 PORT = 1883
 mess = ""
 
+
+def getPort():
+    ports = serial.tools.list_ports.comports()
+    N = len(ports)
+    commPort = ""
+    for i in range (0, N):
+        port = ports[i]
+        strPort = str(port)
+        if " USB Serial Device " in strPort:
+            splitPort = strPort.split (" ")
+            commPort = (splitPort[0])
+    return commPort
+
 #TODO: Add your token and your comport
 #Please check the comport in the device manager
 THINGS_BOARD_ACCESS_TOKEN = "XuEHuPrSGBjGZY5JcNKS"
-bbc_port = ""
+bbc_port = getPort()
 if len(bbc_port) > 0:
     ser = serial.Serial(port=bbc_port, baudrate=115200)
 
@@ -92,7 +106,12 @@ def connected(client, usedata, flags, rc):
         client.subscribe("v1/devices/me/rpc/request/+")
     else:
         print("Connection is failed")
-
+# def sendPrediction():
+#     result = AI.prediction
+#     for i in range(0, len(result[0])):
+#         _data = {AI.name[i]: numpy.float64(result[0][i])}
+#         print(_data)
+#         client.publish('v1/devices/me/telemetry', json.dumps(_data), 1)
 
 client = mqttclient.Client("Gateway_Thingsboard")
 client.username_pw_set(THINGS_BOARD_ACCESS_TOKEN)
@@ -108,13 +127,13 @@ temp = 30
 humi = 50
 light_intensity = 100
 while True:
-
+    # AI.capture_image()
+    # AI.face_detection()
     if (len(bbc_port) >  0):
         readSerial()
+    # sendPrediction()
     latitude = getLoc()[0]
     longitude = getLoc()[1]
-    collect_data = {'temperature': temp, 'humidity': humi, 'light': light_intensity, 'latitude': latitude,
-                    'longitude': longitude}
-
+    collect_data = {'temperature': temp}
     client.publish('v1/devices/me/telemetry', json.dumps(collect_data), 1)
-    time.sleep(1)
+    time.sleep(5)
